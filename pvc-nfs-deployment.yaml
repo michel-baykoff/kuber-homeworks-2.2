@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multitool
+  labels:
+    app: multitool
+spec:
+  selector:
+    matchLabels:
+      app: multitool
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: multitool
+    spec:
+      containers:
+      - name: multitool
+        image: wbitt/network-multitool
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: pvc-nfs-storage
+          mountPath: "/data"
+      volumes:
+      - name: pvc-nfs-storage
+        persistentVolumeClaim:
+          claimName: nfs-pv
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pv
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: "microk8s-hostpath"
+  resources:
+    requests:
+      storage: 100M
